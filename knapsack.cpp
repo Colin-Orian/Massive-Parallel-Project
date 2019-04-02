@@ -16,6 +16,7 @@ struct Item{
 
 //Finds the sum of all the values of the item
 int sum(std::vector<struct Item> items);
+int max(int a, int b);
 /*
 Prints out the optimal solution of the knapsack problem with the given weights
 */
@@ -23,8 +24,6 @@ void knapsack(std::vector<struct Item> items, int carryWeight);
 /*
 Recursively computes the knapsack problem on subsets of the actual set
 */
-std::vector<struct Item> _knapsack(std::vector<struct Item> items, int carryWeight);
-
 int main(int argc, char const *argv[]) {
 
   //Dummy data
@@ -46,43 +45,36 @@ int main(int argc, char const *argv[]) {
   return 0;
 }
 
-
+//https://www.youtube.com/watch?v=8LusJS5-AGo
 void knapsack(std::vector<struct Item> items, int carryWeight){
-  std::vector<struct Item> solution = _knapsack(items, carryWeight);
+  int knapsackMat[items.size()][carryWeight+1];
+   //A backpack that has a carryWeight of 0 can't carry anything
+  for(int y = 0; y < items.size(); y ++){
+    knapsackMat[y][0] = 0;
+  }
+  
+  for(int x = 1; x < carryWeight +1; x ++){
+    for(int y = 0; y < items.size(); y ++){
+      struct Item currentItem = items[y];
+      int actualVal;
+      if(y == 0){
 
-  std::cout << sum(solution) << std::endl;
+      }else{
+        if(currentItem.weight <= x){ //The current item can fit in the bag
+          // What is better value? The all the previous items without the current item
+          // or the current item plus the items that would be allowed with the current item inside the bag?
+          actualVal = max(knapsackMat[y-1][x-currentItem.weight], knapsackMat[y-1][x]);
+  
+        }else{
+          actualVal = knapsackMat[y-1][x];
+        }
+      }
+      knapsackMat[x][y] = actualVal;
+    }
+    
+  }
 }
 
-std::vector<struct Item> _knapsack(std::vector<struct Item> items, int carryWeight){
-  //It's the empty set so return the empty set
-  if(items.size() == 0){
-    std::vector<struct Item> nothing;
-    return nothing;
-  }
-  //Create the subset
-  std::vector<struct Item> subset;
-  for(int i = 0; i < items.size()-1; i ++){
-    subset.push_back(items[i]);
-  }
-  //Get the items the solution of the knapsack problem excluding the right most item
-  std::vector<struct Item> leftItems = _knapsack(subset, carryWeight);
-  //The right most item is too heavy to put in. Therefore, best solution doesn't include it
-  if(items[items.size()-1].weight > carryWeight){
-    return leftItems;
-  }
-  //Computes the solution including the current item
-  std::vector<struct Item> rightItems = _knapsack(subset, carryWeight -items[items.size()-1].weight);
-
-  //Return whichever solution has the highest value
-  int leftValue = sum(leftItems);
-  int rightValue = sum(rightItems);
-  if(leftValue >= rightValue + items[items.size()-1].value){
-    return leftItems;
-  }else{
-    rightItems.push_back(items[items.size()-1]);
-    return rightItems;
-  }
-}
 
 int sum(std::vector<struct Item> items){
   int sum = 0;
@@ -90,4 +82,11 @@ int sum(std::vector<struct Item> items){
     sum += items[i].value;
   }
   return sum;
+}
+
+int max(int a, int b){
+  if(a > b){
+    return a;
+  }
+  return b;
 }
