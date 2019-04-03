@@ -2,6 +2,7 @@
 Programer Name: Colin Orian
 Program Descrpition: A brute force implementation of the 0/1 knapsack problem
 see: https://en.wikipedia.org/wiki/Knapsack_problem#0/1_knapsack_problem
+data set taken from https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/
 */
 
 #include <stdlib.h>
@@ -59,7 +60,9 @@ void knapsack(std::vector<struct Item> items, int carryWeight){
       struct Item currentItem = items[y];
       int actualVal;
       if(y == 0){
-
+        if(currentItem.weight <= carryWeight){
+          actualVal = currentItem.value;
+        }
       }else{
         if(currentItem.weight <= x){ //The current item can fit in the bag
           // What is better value? The all the previous items without the current item
@@ -71,8 +74,6 @@ void knapsack(std::vector<struct Item> items, int carryWeight){
         }
       }
       knapsackMat[y][x] = actualVal;
-      std::cout << knapsackMat[y][x] << std::endl;
-      
     }
   }
   std::cout << knapsackMat[items.size()-1][carryWeight] << std::endl;
