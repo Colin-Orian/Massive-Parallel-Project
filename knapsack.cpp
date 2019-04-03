@@ -42,6 +42,7 @@ int main(int argc, char const *argv[]) {
 
   int carryWeight = 50;
   knapsack(items, carryWeight);
+  
   return 0;
 }
 
@@ -53,7 +54,7 @@ void knapsack(std::vector<struct Item> items, int carryWeight){
     knapsackMat[y][0] = 0;
   }
   
-  for(int x = 1; x < carryWeight +1; x ++){
+  for(int x = 1; x < carryWeight + 1; x ++){
     for(int y = 0; y < items.size(); y ++){
       struct Item currentItem = items[y];
       int actualVal;
@@ -63,16 +64,18 @@ void knapsack(std::vector<struct Item> items, int carryWeight){
         if(currentItem.weight <= x){ //The current item can fit in the bag
           // What is better value? The all the previous items without the current item
           // or the current item plus the items that would be allowed with the current item inside the bag?
-          actualVal = max(knapsackMat[y-1][x-currentItem.weight], knapsackMat[y-1][x]);
+          actualVal = max(knapsackMat[y-1][x-currentItem.weight] + currentItem.value, knapsackMat[y-1][x]);
   
         }else{
           actualVal = knapsackMat[y-1][x];
         }
       }
-      knapsackMat[x][y] = actualVal;
+      knapsackMat[y][x] = actualVal;
+      std::cout << knapsackMat[y][x] << std::endl;
+      
     }
-    
   }
+  std::cout << knapsackMat[items.size()-1][carryWeight] << std::endl;
 }
 
 
