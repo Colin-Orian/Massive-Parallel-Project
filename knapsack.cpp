@@ -2,18 +2,24 @@
 Programer Name: Colin Orian
 Program Descrpition: A brute force implementation of the 0/1 knapsack problem
 see: https://en.wikipedia.org/wiki/Knapsack_problem#0/1_knapsack_problem
-data set taken from https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/
+data set taken from https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/ and
+https://people.sc.fsu.edu/~jburkardt/datasets/knapsack_multiple/knapsack_multiple.html
 */
 
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 //A struct to represent a item in the knapsack
 struct Item{
   int value;
   int weight;
 };
+
+//Parses through a .CSV file and return a vector of type Item
+std::vector<Item> readCSV();
 
 //Finds the sum of all the values of the item
 int sum(std::vector<struct Item> items);
@@ -41,8 +47,11 @@ int main(int argc, char const *argv[]) {
   items[2].value = 120;
   items[2].weight = 30;
 
-  int carryWeight = 50;
-  knapsack(items, carryWeight);
+  int carryWeight = 5;
+
+    std::vector<struct Item> dummy = readCSV();
+
+  knapsack(dummy, carryWeight);
   
   return 0;
 }
@@ -73,6 +82,7 @@ void knapsack(std::vector<struct Item> items, int carryWeight){
           actualVal = knapsackMat[y-1][x];
         }
       }
+      //std::printf("%d\n", actualVal);
       knapsackMat[y][x] = actualVal;
     }
   }
@@ -93,4 +103,38 @@ int max(int a, int b){
     return a;
   }
   return b;
+}
+
+//A function that reads through a csv file
+//The structure of that CSV file is value,weight
+std::vector<Item> readCSV(){
+    std::vector<struct Item> items;
+    std::string line;
+    std::string value;
+    std::string weight;
+    std::ifstream file;
+
+    //Tries to open the file
+    file.open("knapsack.csv");
+
+    //Check if the file cannot be opened
+    if(!file){
+        std::cerr << "Unable to open file!\n";
+        exit(1);
+    }
+
+    //Read through the file line by line
+    while(std::getline(file, line)){
+        //Creates a string stream such that it fits the getline param
+        std::stringstream ss(line);
+
+        std::getline(ss,value, ',');
+        std::getline(ss,weight, '\n');
+
+        items.push_back(Item());
+        items[items.size() - 1].value = std::stoi(value);
+        items[items.size() - 1].weight = std::stoi(weight);
+    }
+
+    return items;
 }
