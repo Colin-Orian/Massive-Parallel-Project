@@ -20,7 +20,7 @@ struct Item{
 
 //Parses through a .CSV file and return either vector or array of type Item
 std::vector<Item> readVecCSV();
-Item* readArrCSV();
+Item* readArrCSV(std::string fileName);
 
 //Finds the sum of all the values of the item
 int sum(std::vector<struct Item> items);
@@ -30,6 +30,7 @@ Prints out the optimal solution of the knapsack problem with the given weights
 */
 void knapsack(std::vector<struct Item> items, int carryWeight);
 void knapsackArr(Item *item, int carryWeight);
+void knapsackParallel(Item *item, int carryWeight);
 
 int globalSize;
 
@@ -51,9 +52,9 @@ int main(int argc, char const *argv[]) {
 
   int carryWeight = 5;
 
-    std::vector<struct Item> dummy = readVecCSV();
-    Item *itemsman = readArrCSV();
-
+  std::vector<struct Item> dummy = readVecCSV();
+  std::string fileName = "knapsack.csv";
+  Item *itemsman = readArrCSV(fileName);
   knapsack(dummy, carryWeight);
   knapsackArr(itemsman, carryWeight);
   free(itemsman);
@@ -75,6 +76,8 @@ void knapsack(std::vector<struct Item> items, int carryWeight){
       if(y == 0){
         if(currentItem.weight <= carryWeight){
           actualVal = currentItem.value;
+        }else{
+          actualVal = 0;  //can't fit anyting in so it's value is zero
         }
       }else{
         if(currentItem.weight <= x){ //The current item can fit in the bag
@@ -108,6 +111,8 @@ void knapsackArr(Item* items, int carryWeight){
       if(y == 0){
         if(currentItem.weight <= carryWeight){
           actualVal = currentItem.value;
+        }else{
+          actualVal = 0;
         }
       }else{
         if(currentItem.weight <= x){ //The current item can fit in the bag
@@ -179,14 +184,14 @@ std::vector<Item> readVecCSV(){
 
 //A function that reads through a csv file and returns a
 //array
-Item* readArrCSV(){
+Item* readArrCSV(std::string fileName){
     std::string line;
     std::string value;
     std::string weight;
     std::ifstream file;
 
     //Opens the file
-    file.open("knapsack.csv");
+    file.open(fileName);
 
     //Check if the file exist or if there are any error
     if(!file){
