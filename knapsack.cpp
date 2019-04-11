@@ -12,7 +12,7 @@ https://people.sc.fsu.edu/~jburkardt/datasets/knapsack_multiple/knapsack_multipl
 #include <fstream>
 #include <sstream>
 #include <pthread.h>
-
+#include <sys/resource.h>
 #include <chrono>
 #include <ctime>
 
@@ -39,15 +39,31 @@ void knapsackParallel(Item *item, int carryWeight);
 int globalSize;
 
 int main(int argc, char const *argv[]) {
+
+    const rlim_t stackSize = sizeof(int) * 1000 * 1000;
+    struct rlimit rl;
+    int result;
+
+    result = getrlimit(RLIMIT_STACK, &rl);
+    if(result == 0){
+        if(rl.rlim_cur < stackSize){
+            rl.rlim_cur = stackSize;
+            result = setrlimit(RLIMIT_STACK, &rl);
+            if(result !=0){
+                std::fprintf(stderr, "setrlimit returned result = %d\n", result);
+            }
+        }
+    }
+
     int carryWeight = 0;
     std::string fileName;
 
-    if(argc > 0){
+    if(argc > 1){
         carryWeight = std::stoi(argv[1]);
         fileName = argv[2];
     }else{
-        carryWeight = 10;
-        fileName = "knapsack.csv";
+        carryWeight = 7000;
+        fileName = "madeData.csv";
     }
     
   Item *itemsman = readArrCSV(fileName);
