@@ -13,6 +13,9 @@ https://people.sc.fsu.edu/~jburkardt/datasets/knapsack_multiple/knapsack_multipl
 #include <sstream>
 #include <pthread.h>
 
+#include <chrono>
+#include <ctime>
+
 //A struct to represent a item in the knapsack
 struct Item{
   int value;
@@ -46,9 +49,15 @@ int main(int argc, char const *argv[]) {
         carryWeight = 10;
         fileName = "knapsack.csv";
     }
-
+    
   Item *itemsman = readArrCSV(fileName);
+  auto start = std::chrono::system_clock::now();
   knapsackArr(itemsman, carryWeight);
+  auto end = std::chrono::system_clock::now();
+  std::chrono::duration<double> delta = end - start;
+  std::cout << "Time to compute: " << delta.count() << std::endl;
+
+  
   free(itemsman);
   return 0;
 }
@@ -56,6 +65,7 @@ int main(int argc, char const *argv[]) {
 //https://www.youtube.com/watch?v=8LusJS5-AGo
 void knapsack(std::vector<struct Item> items, int carryWeight){
   int knapsackMat[items.size()][carryWeight+1];
+
    //A backpack that has a carryWeight of 0 can't carry anything
   for(int y = 0; y < items.size(); y ++){
     knapsackMat[y][0] = 0;
@@ -194,7 +204,6 @@ Item* readArrCSV(std::string fileName){
     //Since the first line of the file contains the size information
     //This will get the size info
     std::getline(file, line);
-    std::cout << line << std::endl;
 
     //Since this function returns an pointer, which is imediatly going to get 
     //dealocated, this would mean //Item items[std::stoi(line)]; would just point
