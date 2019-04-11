@@ -61,43 +61,6 @@ int main(int argc, char const *argv[]) {
   free(itemsman);
   return 0;
 }
-
-//https://www.youtube.com/watch?v=8LusJS5-AGo
-void knapsack(std::vector<struct Item> items, int carryWeight){
-  int knapsackMat[items.size()][carryWeight+1];
-
-   //A backpack that has a carryWeight of 0 can't carry anything
-  for(int y = 0; y < items.size(); y ++){
-    knapsackMat[y][0] = 0;
-  }
-  
-  for(int x = 1; x < carryWeight + 1; x ++){
-    for(int y = 0; y < items.size(); y ++){
-      struct Item currentItem = items[y];
-      int actualVal;
-      if(y == 0){
-        if(currentItem.weight <= carryWeight){
-          actualVal = currentItem.value;
-        }else{
-          actualVal = 0;  //can't fit anyting in so it's value is zero
-        }
-      }else{
-        if(currentItem.weight <= x){ //The current item can fit in the bag
-          // What is better value? The all the previous items without the current item
-          // or the current item plus the items that would be allowed with the current item inside the bag?
-          actualVal = max(knapsackMat[y-1][x-currentItem.weight] + currentItem.value, knapsackMat[y-1][x]);
-  
-        }else{
-          actualVal = knapsackMat[y-1][x];
-        }
-      }
-      //std::printf("%d\n", actualVal);
-      knapsackMat[y][x] = actualVal;
-    }
-  }
-  std::cout << knapsackMat[items.size()-1][carryWeight] << std::endl;
-}
-
 //knapsack function, but implimented in arrays
 void knapsackArr(Item* items, int carryWeight){
   int knapsackMat[globalSize][carryWeight+1];
@@ -132,58 +95,12 @@ void knapsackArr(Item* items, int carryWeight){
   }
   std::cout << knapsackMat[globalSize-1][carryWeight] << std::endl;
 }
-
-int sum(std::vector<struct Item> items){
-  int sum = 0;
-  for(int i = 0; i < items.size(); i ++){
-    sum += items[i].value;
-  }
-  return sum;
-}
-
 int max(int a, int b){
   if(a > b){
     return a;
   }
   return b;
 }
-
-//A function that reads through a csv file
-//The structure of that CSV file is value,weight
-std::vector<Item> readVecCSV(){
-    std::vector<struct Item> items;
-    std::string line;
-    std::string value;
-    std::string weight;
-    std::ifstream file;
-
-    //Tries to open the file
-    file.open("knapsack.csv");
-
-    //Check if the file cannot be opened
-    if(!file){
-        std::cerr << "Unable to open file!\n";
-        exit(1);
-    }
-
-    std::getline(file, line);
-
-    //Read through the file line by line
-    while(std::getline(file, line)){
-        //Creates a string stream such that it fits the getline param
-        std::stringstream ss(line);
-
-        std::getline(ss,value, ',');
-        std::getline(ss,weight, '\n');
-
-        items.push_back(Item());
-        items[items.size() - 1].value = std::stoi(value);
-        items[items.size() - 1].weight = std::stoi(weight);
-    }
-
-    return items;
-}
-
 //A function that reads through a csv file and returns a
 //array
 Item* readArrCSV(std::string fileName){
