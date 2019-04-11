@@ -11,6 +11,7 @@ https://people.sc.fsu.edu/~jburkardt/datasets/knapsack_multiple/knapsack_multipl
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <pthread.h>
 
 //A struct to represent a item in the knapsack
 struct Item{
@@ -35,27 +36,18 @@ void knapsackParallel(Item *item, int carryWeight);
 int globalSize;
 
 int main(int argc, char const *argv[]) {
+    int carryWeight = 0;
+    std::string fileName;
 
-  //Dummy data
-  std::vector<struct Item> items;
-  items.push_back(Item());
-  items[0].value = 50;
-  items[0].weight = 10;
+    if(argc > 0){
+        carryWeight = std::stoi(argv[1]);
+        fileName = argv[2];
+    }else{
+        carryWeight = 10;
+        fileName = "knapsack.csv";
+    }
 
-  items.push_back(Item());
-  items[1].value = 100;
-  items[1].weight = 20;
-
-  items.push_back(Item());
-  items[2].value = 120;
-  items[2].weight = 30;
-
-  int carryWeight = 5;
-
-  std::vector<struct Item> dummy = readVecCSV();
-  std::string fileName = "knapsack.csv";
   Item *itemsman = readArrCSV(fileName);
-  knapsack(dummy, carryWeight);
   knapsackArr(itemsman, carryWeight);
   free(itemsman);
   return 0;
