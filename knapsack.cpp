@@ -40,7 +40,7 @@ int globalSize;
 
 int main(int argc, char const *argv[]) {
 
-    const rlim_t stackSize = sizeof(int) * 1000 * 1000;
+    const rlim_t stackSize = sizeof(int) * 100000 * 100000;
     struct rlimit rl;
     int result;
 
@@ -55,6 +55,8 @@ int main(int argc, char const *argv[]) {
         }
     }
 
+    std::cout << "Test\n";
+
     int carryWeight = 0;
     std::string fileName;
 
@@ -62,7 +64,7 @@ int main(int argc, char const *argv[]) {
         carryWeight = std::stoi(argv[1]);
         fileName = argv[2];
     }else{
-        carryWeight = 7000;
+        carryWeight = 10000;
         fileName = "madeData.csv";
     }
     
