@@ -1,11 +1,3 @@
-/*
-Programer Name: Colin Orian
-Program Descrpition: A brute force implementation of the 0/1 knapsack problem
-see: https://en.wikipedia.org/wiki/Knapsack_problem#0/1_knapsack_problem
-data set taken from https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/ and
-https://people.sc.fsu.edu/~jburkardt/datasets/knapsack_multiple/knapsack_multiple.html
-*/
-
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
@@ -27,10 +19,10 @@ std::vector<Item> readVecCSV();
 Item* readArrCSV(std::string fileName);
 
 int max(int a, int b);
-void knapsack(std::vector<struct Item> items, int carryWeight);
-void knapsackArr(Item *item, int carryWeight);
+void knapsackArrP(Item *item, int carryWeight);
 
 int globalSize;
+
 
 int main(int argc, char const *argv[]) {
 
@@ -60,19 +52,19 @@ int main(int argc, char const *argv[]) {
         fileName = "madeData.csv";
     }
     
-  Item *itemsman = readArrCSV(fileName);
-  auto start = std::chrono::system_clock::now();
-  knapsackArr(itemsman, carryWeight);
-  auto end = std::chrono::system_clock::now();
-  std::chrono::duration<double> delta = end - start;
-  std::cout << "Time to compute: " << delta.count() << std::endl;
+    Item *itemsman = readArrCSV(fileName);
+    auto start = std::chrono::system_clock::now();
+    knapsackArrP(itemsman, carryWeight);
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> delta = end - start;
+    std::cout << "Time to compute: " << delta.count() << std::endl;
 
   
-  free(itemsman);
-  return 0;
+    free(itemsman);
+    return 0;
 }
 //knapsack function, but implimented in arrays
-void knapsackArr(Item* items, int carryWeight){
+void knapsackArrP(Item* items, int carryWeight){
   int knapsackMat[globalSize][carryWeight+1];
    //A backpack that has a carryWeight of 0 can't carry anything
   for(int y = 0; y < globalSize; y ++){
@@ -105,14 +97,14 @@ void knapsackArr(Item* items, int carryWeight){
   }
   std::cout << knapsackMat[globalSize-1][carryWeight] << std::endl;
 }
+
 int max(int a, int b){
   if(a > b){
     return a;
   }
   return b;
 }
-//A function that reads through a csv file and returns a
-//array
+
 Item* readArrCSV(std::string fileName){
     std::string line;
     std::string value;
