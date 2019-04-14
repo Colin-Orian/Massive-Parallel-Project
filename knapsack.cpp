@@ -37,7 +37,6 @@ int main(int argc, char const *argv[]) {
     const rlim_t stackSize = sizeof(int) * 100000 * 100000;
     struct rlimit rl;
     int result;
-
     result = getrlimit(RLIMIT_STACK, &rl);
     if(result == 0){
         if(rl.rlim_cur < stackSize){

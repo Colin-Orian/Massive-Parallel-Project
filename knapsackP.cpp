@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <vector>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -14,14 +13,27 @@ struct Item{
   int weight;
 };
 
-//Parses through a .CSV file and return either vector or array of type Item
-std::vector<Item> readVecCSV();
+struct thread_data{
+    int thread_id;
+    int **knapsackMat;
+    int x;
+    int y;
+    struct Item currentItem;
+};
+
 Item* readArrCSV(std::string fileName);
 
 int max(int a, int b);
-void knapsackArrP(Item *item, int carryWeight);
+void knapsackArrP(Item *item, int carryWeight, int num_thread);
 
+void *kapsack(void *threadarg);
+
+int num_thread;
 int globalSize;
+int carryWeight = 0;
+bool stop_flag = false;
+
+pthread_mutex_t mutextotal;
 
 
 int main(int argc, char const *argv[]) {
@@ -41,20 +53,23 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    int carryWeight = 0;
+    carryWeight = 0;
     std::string fileName;
 
     if(argc > 1){
         carryWeight = std::stoi(argv[1]);
         fileName = argv[2];
+        num_thread = std::stoi(argv[3]);
+
     }else{
-        carryWeight = 10000;
+        carryWeight = 10;
         fileName = "madeData.csv";
+        num_thread = 1;
     }
     
     Item *itemsman = readArrCSV(fileName);
     auto start = std::chrono::system_clock::now();
-    knapsackArrP(itemsman, carryWeight);
+    knapsackArrP(itemsman, carryWeight, num_thread);
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> delta = end - start;
     std::cout << "Time to compute: " << delta.count() << std::endl;
@@ -64,37 +79,47 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 //knapsack function, but implimented in arrays
-void knapsackArrP(Item* items, int carryWeight){
+void knapsackArrP(Item* items, int carryWeight, int num_thread){
+
   int knapsackMat[globalSize][carryWeight+1];
    //A backpack that has a carryWeight of 0 can't carry anything
   for(int y = 0; y < globalSize; y ++){
     knapsackMat[y][0] = 0;
   }
-  
-  for(int x = 1; x < carryWeight + 1; x ++){
-    for(int y = 0; y < globalSize; y ++){
-      struct Item currentItem = items[y];
-      int actualVal;
-      if(y == 0){
-        if(currentItem.weight <= carryWeight){
-          actualVal = currentItem.value;
-        }else{
-          actualVal = 0;
+
+  pthread_t threads[num_thread];
+  pthread_attr_t a;
+  long i;
+  int error;
+  void *status;
+
+  pthread_mutex_init(&mutextotal, NULL);
+  pthread_attr_init(&a);
+  pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
+
+  int y =0;
+
+  struct thread_data thread_data_array[num_thread];
+    //for(int y = 0; y < globalSize; y ++){
+        for(int x = 1; x < carryWeight + 1; x ++){
+            for(int i = 1; i < num_thread; i++){
+                if(y < globalSize){
+                    thread_data_array[i].thread_id = x;
+                    thread_data_array[i].x = x;
+                    thread_data_array[i].y = y;
+                    thread_data_array[i].currentItem = items[y];
+                    thread_data_array[i].knapsackMat = (int **)&knapsackMat;
+
+                    error = pthread_create(&threads[i],&a, kapsack, (void *)&thread_data_array[i]);
+                    if (error) {
+                        printf("ERROR: create() %d\n", error);
+                        exit(-1);
+                    }
+                    y++;
+                }
+            }
         }
-      }else{
-        if(currentItem.weight <= x){ //The current item can fit in the bag
-          // What is better value? The all the previous items without the current item
-          // or the current item plus the items that would be allowed with the current item inside the bag?
-          actualVal = max(knapsackMat[y-1][x-currentItem.weight] + currentItem.value, knapsackMat[y-1][x]);
-  
-        }else{
-          actualVal = knapsackMat[y-1][x];
-        }
-      }
-      //std::printf("%d\n", actualVal);
-      knapsackMat[y][x] = actualVal;
-    }
-  }
+    //}
   std::cout << knapsackMat[globalSize-1][carryWeight] << std::endl;
 }
 
@@ -150,4 +175,38 @@ Item* readArrCSV(std::string fileName){
         count++;
     }
     return items;
+}
+
+void *kapsack(void *threadarg){
+    struct thread_data *my_data;
+    my_data = (struct thread_data*) threadarg;
+    int actualVal;
+
+    while(!stop_flag){
+        if(my_data->x < carryWeight){
+            if(my_data->y == 0){
+                if(my_data->currentItem.weight <= carryWeight){
+                    actualVal = my_data->currentItem.value;
+                }else{
+                    actualVal = 0;
+                }
+            }else{
+                if(my_data->currentItem.weight <= my_data->x){
+                    actualVal = max(my_data->knapsackMat[my_data->y-1][my_data->x - my_data->currentItem.weight]
+                                + my_data->currentItem.value, my_data->knapsackMat[my_data->y-1][my_data->x]);
+                }else{
+                    actualVal = my_data->knapsackMat[my_data->y-1][my_data->x];
+                }
+
+            }
+
+        my_data->knapsackMat[my_data->y][my_data->x] = actualVal;
+        my_data->x += num_thread;
+        }else{//Prop put mutex on this
+            pthread_mutex_lock(&mutextotal);
+            stop_flag = true;
+            pthread_mutex_unlock(&mutextotal);
+        }
+    }
+    pthread_exit(NULL);
 }
