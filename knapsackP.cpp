@@ -13,6 +13,7 @@ struct Item{
   int weight;
 };
 
+//Contains the data for the thread
 struct thread_data{
     int thread_id;
     int **knapsackMat;
@@ -26,6 +27,7 @@ Item* readArrCSV(std::string fileName);
 int max(int a, int b);
 void knapsackArrP(Item *item, int carryWeight, int num_thread);
 
+//A function for the thread to run 
 void *kapsack(void *threadarg);
 
 int num_thread;
@@ -38,6 +40,8 @@ pthread_mutex_t mutextotal;
 
 int main(int argc, char const *argv[]) {
 
+
+    //Increase the stack limit
     const rlim_t stackSize = sizeof(int) * 100000 * 100000;
     struct rlimit rl;
     int result;
@@ -100,8 +104,12 @@ void knapsackArrP(Item* items, int carryWeight, int num_thread){
   int y =0;
 
   struct thread_data thread_data_array[num_thread];
+
+    //So in order for the threads to run parallelaly (Thats a word?), we must spawn the thread in the inner loop
     //for(int y = 0; y < globalSize; y ++){
         for(int x = 1; x < carryWeight + 1; x ++){
+
+            //Spawns the thread
             for(int i = 1; i < num_thread; i++){
                 if(y < globalSize){
                     thread_data_array[i].thread_id = x;
@@ -118,6 +126,8 @@ void knapsackArrP(Item* items, int carryWeight, int num_thread){
                     y++;
                 }
             }
+
+            //I just remember, i made this joinable ....
         }
     //}
   std::cout << knapsackMat[globalSize-1][carryWeight] << std::endl;
@@ -177,6 +187,11 @@ Item* readArrCSV(std::string fileName){
     return items;
 }
 
+
+
+//This function essentially does the same thing as the sequence
+//But instead we will have a while loop so that if the thread is finish doing its job
+//the we can go to the next available job, till we cant any more
 void *kapsack(void *threadarg){
     struct thread_data *my_data;
     my_data = (struct thread_data*) threadarg;
