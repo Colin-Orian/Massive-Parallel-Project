@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <pthread.h>
+#include <omp.h>
 #include <sys/resource.h>
 #include <chrono>
 #include <ctime>
@@ -11,15 +11,6 @@
 struct Item{
   int value;
   int weight;
-};
-
-//Contains the data for the thread
-struct thread_data{
-    int thread_id;
-    int **knapsackMat;
-    int x;
-    int y;
-    struct Item currentItem;
 };
 
 Item* readArrCSV(std::string fileName);
@@ -35,14 +26,12 @@ int globalSize;
 int carryWeight = 0;
 bool stop_flag = false;
 
-pthread_mutex_t mutextotal;
-
 
 int main(int argc, char const *argv[]) {
 
 
     //Increase the stack limit
-    const rlim_t stackSize = sizeof(int) * 100000 * 100000;
+    const rlim_t stackSize = sizeof(int) * 1000000 * 1000000;
     struct rlimit rl;
     int result;
 
@@ -67,7 +56,7 @@ int main(int argc, char const *argv[]) {
 
     }else{
         carryWeight = 10;
-        fileName = "madeData.csv";
+        fileName = "knapsack.csv";
         num_thread = 1;
     }
     
@@ -82,6 +71,7 @@ int main(int argc, char const *argv[]) {
     free(itemsman);
     return 0;
 }
+
 //knapsack function, but implimented in arrays
 void knapsackArrP(Item* items, int carryWeight, int num_thread){
 
@@ -91,45 +81,32 @@ void knapsackArrP(Item* items, int carryWeight, int num_thread){
     knapsackMat[y][0] = 0;
   }
 
-  pthread_t threads[num_thread];
-  pthread_attr_t a;
-  long i;
-  int error;
-  void *status;
+    for(int x = 1; x < carryWeight + 1; x++){
 
-  pthread_mutex_init(&mutextotal, NULL);
-  pthread_attr_init(&a);
-  pthread_attr_setdetachstate(&a, PTHREAD_CREATE_JOINABLE);
+        //omp_set_num_threads(num_thread);
 
-  int y =0;
+        #pragma omp parallel for num_threads(num_thread)
+        for(int y = 0; y < globalSize; y++){
+            struct Item currentItem = items[y];
+            int actualVal;
 
-  struct thread_data thread_data_array[num_thread];
-
-    //So in order for the threads to run parallelaly (Thats a word?), we must spawn the thread in the inner loop
-    //for(int y = 0; y < globalSize; y ++){
-        for(int x = 1; x < carryWeight + 1; x ++){
-
-            //Spawns the thread
-            for(int i = 1; i < num_thread; i++){
-                if(y < globalSize){
-                    thread_data_array[i].thread_id = x;
-                    thread_data_array[i].x = x;
-                    thread_data_array[i].y = y;
-                    thread_data_array[i].currentItem = items[y];
-                    thread_data_array[i].knapsackMat = (int **)&knapsackMat;
-
-                    error = pthread_create(&threads[i],&a, kapsack, (void *)&thread_data_array[i]);
-                    if (error) {
-                        printf("ERROR: create() %d\n", error);
-                        exit(-1);
-                    }
-                    y++;
+            if(y == 0){
+                if(currentItem.weight < carryWeight){
+                    actualVal = currentItem.value;
+                }else{
+                    actualVal = 0;
+                }
+            }else{
+                if(currentItem.weight <= x){
+                    actualVal = max(knapsackMat[y-1][x -currentItem.weight] + currentItem.value, knapsackMat[y-1][x]);
+                }else{
+                    actualVal = knapsackMat[y-1][x];
                 }
             }
+            knapsackMat[y][x] = actualVal;
 
-            //I just remember, i made this joinable ....
         }
-    //}
+    }
   std::cout << knapsackMat[globalSize-1][carryWeight] << std::endl;
 }
 
@@ -185,43 +162,4 @@ Item* readArrCSV(std::string fileName){
         count++;
     }
     return items;
-}
-
-
-
-//This function essentially does the same thing as the sequence
-//But instead we will have a while loop so that if the thread is finish doing its job
-//the we can go to the next available job, till we cant any more
-void *kapsack(void *threadarg){
-    struct thread_data *my_data;
-    my_data = (struct thread_data*) threadarg;
-    int actualVal;
-
-    while(!stop_flag){
-        if(my_data->x < carryWeight){
-            if(my_data->y == 0){
-                if(my_data->currentItem.weight <= carryWeight){
-                    actualVal = my_data->currentItem.value;
-                }else{
-                    actualVal = 0;
-                }
-            }else{
-                if(my_data->currentItem.weight <= my_data->x){
-                    actualVal = max(my_data->knapsackMat[my_data->y-1][my_data->x - my_data->currentItem.weight]
-                                + my_data->currentItem.value, my_data->knapsackMat[my_data->y-1][my_data->x]);
-                }else{
-                    actualVal = my_data->knapsackMat[my_data->y-1][my_data->x];
-                }
-
-            }
-
-        my_data->knapsackMat[my_data->y][my_data->x] = actualVal;
-        my_data->x += num_thread;
-        }else{//Prop put mutex on this
-            pthread_mutex_lock(&mutextotal);
-            stop_flag = true;
-            pthread_mutex_unlock(&mutextotal);
-        }
-    }
-    pthread_exit(NULL);
 }
