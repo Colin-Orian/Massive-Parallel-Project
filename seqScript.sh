@@ -2,7 +2,7 @@ touch itemsFixedSeq.dat
 rm itemsFixedSeq.dat
 touch itemsFixedSeq.dat
 echo "number of items fixed:"
-python3.6 makeData.py 100000
+python makeData.py 1000
 for i in `seq 7`
 do
     echo "Capacity = 10^$i" >> itemsFixedSeq.dat
@@ -16,6 +16,6 @@ echo "Bag Capacity fixed"
 for i in `seq 7`
 do
     echo "Items = 10^$i" >> capacityFixedSeq.dat
-    python3.6 makeData.py $((10**i))
-    ./sequental.out 10000 "madeData.csv" >> capacityFixedSeq.dat
+    python makeData.py $((10**i))
+    ./sequental.out 1000 "madeData.csv" >> capacityFixedSeq.dat
 done

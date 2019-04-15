@@ -1,0 +1,19 @@
+Items = 10^1
+597
+Time to compute: 0.00026357
+Items = 10^2
+5139
+Time to compute: 0.00114971
+Items = 10^3
+22696
+Time to compute: 0.0170393
+Items = 10^4
+60739
+Time to compute: 0.208184
+Items = 10^5
+95129
+Time to compute: 3.90928
+Items = 10^6
+99986
+Time to compute: 36.665
+Items = 10^7
