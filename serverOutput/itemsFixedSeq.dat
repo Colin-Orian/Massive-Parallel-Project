@@ -1,0 +1,23 @@
+Capacity = 10^1
+970
+Time to compute: 0.000140801
+Capacity = 10^2
+6004
+Time to compute: 0.00113102
+Capacity = 10^3
+24183
+Time to compute: 0.0139149
+Capacity = 10^4
+49658
+Time to compute: 0.103801
+Capacity = 10^5
+49658
+Time to compute: 0.96732
+Capacity = 10^6
+49658
+Time to compute: 9.70356
+Capacity = 10^7
+49658
+Time to compute: 113.537
+Capacity = 10^8
+Capacity = 10^9

@@ -1,0 +1,22 @@
+Items = 10^1
+582
+Time to compute: 0.000121487
+Items = 10^2
+4932
+Time to compute: 0.00116462
+Items = 10^3
+22798
+Time to compute: 0.0148045
+Items = 10^4
+59975
+Time to compute: 0.148785
+Items = 10^5
+95447
+Time to compute: 2.38259
+Items = 10^6
+99953
+Time to compute: 37.0523
+Items = 10^7
+100000
+Time to compute: 376.587
+Items = 10^8
