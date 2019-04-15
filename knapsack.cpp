@@ -34,7 +34,7 @@ int globalSize;
 
 int main(int argc, char const *argv[]) {
 
-    const rlim_t stackSize = sizeof(int) * 1000000000 * 1000000000;
+    const rlim_t stackSize = sizeof(int) * 10000000000 * 10000000000;
     struct rlimit rl;
     int result;
     result = getrlimit(RLIMIT_STACK, &rl);
