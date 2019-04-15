@@ -2,7 +2,7 @@ touch itemsFixedPar.dat
 rm itemsFixedPar.dat
 touch itemsFixedPar.dat
 echo "number of items fixed:"
-python3.6 makeData.py 1000
+python3.6 makeData.py 100000
 for i in `seq 7`
 do
     echo "Capacity = 10^$i" >> itemsFixedPar.dat
@@ -17,5 +17,5 @@ for i in `seq 7`
 do
     echo "Items = 10^$i" >> capacityFixedPar.dat
     python3.6 makeData.py $((10**i))
-    ./parallel.out 1000 "madeData.csv" 40 >> capacityFixedPar.dat
+    ./parallel.out 10000 "madeData.csv" 40 >> capacityFixedPar.dat
 done
