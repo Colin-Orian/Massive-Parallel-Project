@@ -31,7 +31,7 @@ int main(int argc, char const *argv[]) {
 
 
     //Increase the stack limit
-    const rlim_t stackSize = sizeof(int) * 1000000 * 1000000;
+    const rlim_t stackSize = sizeof(int) * 100000000 * 100000000;
     struct rlimit rl;
     int result;
 
