@@ -1,9 +1,10 @@
-g++ -o sequental.out knapsack.cpp
+mkdir serverOutput
+g++ -std=c++11 -o sequental.out knapsack.cpp
 ./seqScript.sh
-mv itemsFixedSeq.dat ./server
-mv capacityFixedSeq.dat ./server
+mv itemsFixedSeq.dat ./serverOutput
+mv capacityFixedSeq.dat ./serverOutput
 
-g++ -o parallel.out knapsackP.cpp
+g++ -std=c++11 -o parallel.out knapsackP.cpp
 ./parallelScriptServer.sh
-mv itemsFixedPar.dat ./server
-mv capacityFixedPar.dat ./server
+mv itemsFixedPar.dat ./serverOutput
+mv capacityFixedPar.dat ./serverOutput
