@@ -1,3 +1,8 @@
+/*
+@author Colin Orian, Ibrahim Mushtaq
+@Descrption A parallel impelemntation of the 0/1 knapsack problem
+*/
+
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>

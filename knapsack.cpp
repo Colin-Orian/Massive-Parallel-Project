@@ -1,9 +1,10 @@
 /*
-Programer Name: Colin Orian
-Program Descrpition: A brute force implementation of the 0/1 knapsack problem
+@author Colin Orian, Ibrahim Mushtaq 
+@Description A brute force implementation of the 0/1 knapsack problem
 see: https://en.wikipedia.org/wiki/Knapsack_problem#0/1_knapsack_problem
 data set taken from https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/ and
 https://people.sc.fsu.edu/~jburkardt/datasets/knapsack_multiple/knapsack_multiple.html
+https://www.youtube.com/watch?v=8LusJS5-AGo
 */
 
 #include <stdlib.h>
@@ -82,7 +83,8 @@ void knapsackArr(Item* items, int carryWeight){
     for(int y = 0; y < globalSize; y ++){
       struct Item currentItem = items[y];
       int actualVal;
-      if(y == 0){
+      if(y == 0){//base case
+        //Can the bag fit one item into it?
         if(currentItem.weight <= carryWeight){
           actualVal = currentItem.value;
         }else{
@@ -98,12 +100,13 @@ void knapsackArr(Item* items, int carryWeight){
           actualVal = knapsackMat[y-1][x];
         }
       }
-      //std::printf("%d\n", actualVal);
       knapsackMat[y][x] = actualVal;
     }
   }
   std::cout << knapsackMat[globalSize-1][carryWeight] << std::endl;
 }
+
+//returns the max of the two numbers
 int max(int a, int b){
   if(a > b){
     return a;
